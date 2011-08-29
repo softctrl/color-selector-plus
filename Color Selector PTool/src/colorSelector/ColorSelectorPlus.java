@@ -5,7 +5,7 @@
  * Copyright (C) 2011 Manindra Moharana.
  */
 
-package colorSelectorPlus;
+package colorSelector;
 
 import java.io.*;
 import java.awt.*;

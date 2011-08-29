@@ -23,7 +23,7 @@
  * @version		##version##
  */
 
-package colorSelectorPlus;
+package colorSelector;
 
 import processing.app.*;
 import processing.app.tools.*;

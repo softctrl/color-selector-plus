@@ -1,4 +1,4 @@
-package colorSelectorPlus;
+package colorSelector;
 
 import java.awt.Color;
 import processing.core.*;
