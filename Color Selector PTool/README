@@ -5,8 +5,11 @@
 #																			                #
 #############################################################################################
 
+Release 1.0
+Date - 30th Aug 2011
+Tested on - Windows
 
-The window is divided into three areas:
+The Color Selector Plus window is divided into three areas:
  
 1. Color Mixer/Color Picker Tabs:
 
@@ -20,9 +23,9 @@ The window is divided into three areas:
 
 2. Color Panel
 
-	The current selected color and it's values are shown in this tab. The color can be either
-	added to the palette or it's hex can be copied to the clipboard. 'Copy to clipboard' copies 
-	the hex value along with the # symbol.
+	The current selected color and it's rgb, hsb and hex values are shown in this tab. The color can 
+	be either added to the palette or it's hex can be copied to the clipboard. 
+	'Copy to clipboard' copies the hex value along with the # symbol.
 
 3. Color Palette
 
