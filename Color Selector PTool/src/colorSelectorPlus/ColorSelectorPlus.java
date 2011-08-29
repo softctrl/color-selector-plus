@@ -18,7 +18,7 @@ import processing.app.*;
 import java.util.ArrayList;
 
 @SuppressWarnings("serial")
-public class ColorSelector extends JFrame implements KeyListener,
+public class ColorSelectorPlus extends JFrame implements KeyListener,
 		WindowFocusListener {
 	private ZoomScreen zoomScreen;
 	private JTextField txtcolorValue;
@@ -57,7 +57,7 @@ public class ColorSelector extends JFrame implements KeyListener,
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ColorSelector frame = new ColorSelector();
+					ColorSelectorPlus frame = new ColorSelectorPlus();
 					frame.setLocation(400, 40);
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -72,7 +72,7 @@ public class ColorSelector extends JFrame implements KeyListener,
 	 * SWT Designer plugin to place components, so haven't used too many layout
 	 * managers.
 	 */
-	public ColorSelector() {
+	public ColorSelectorPlus() {
 		// Must change the next line while building tool! Had 12 instances
 		// running once with dispose_on_close!
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

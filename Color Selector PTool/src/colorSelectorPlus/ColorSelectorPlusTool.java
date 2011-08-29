@@ -28,20 +28,20 @@ package colorSelectorPlus;
 import processing.app.*;
 import processing.app.tools.*;
 
-public class ColorSelectorTool implements Tool {
+public class ColorSelectorPlusTool implements Tool {
 
 	// when creating a tool, the name of the main class which implements Tool
 	// must be the same as the value defined for project.name in your
 	// build.properties
 
-	static ColorSelector cs = null;
+	static ColorSelectorPlus cs = null;
 
 	public String getMenuTitle() {
 		return "Color Selector Plus";
 	}
 
 	public void init(Editor theEditor) {
-		cs = new ColorSelector();
+		cs = new ColorSelectorPlus();
 		cs.editor = theEditor;
 	}
 

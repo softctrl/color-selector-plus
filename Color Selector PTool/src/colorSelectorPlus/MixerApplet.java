@@ -17,7 +17,7 @@ class MixerApplet extends PApplet {
 	boolean firstRun = true;
 	int lastX, lastY;
 	int hue = 200, brightness = 110, saturation = 0;
-	ColorSelector parent;
+	ColorSelectorPlus parent;
 
 	public void setup() {
 		size(WIDE, HIGH); // , P3D);
