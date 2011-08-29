@@ -50,7 +50,7 @@ public class ColorSelector extends JFrame implements KeyListener,
 	Editor editor;
 	String currentFile;
 
-	/*
+	/**
 	 * Main method to launch it for testing
 	 */
 	public static void main(String[] args) {
@@ -65,7 +65,6 @@ public class ColorSelector extends JFrame implements KeyListener,
 				}
 			}
 		});
-		// System.exit(0);
 	}
 
 	/**
@@ -94,7 +93,7 @@ public class ColorSelector extends JFrame implements KeyListener,
 		addKeyListener(this);
 		addWindowFocusListener(this);
 
-		setBounds(300, 50, 338, 695);// setBounds(100, 100, 338, 688);
+		setBounds(300, 50, 338, 695);
 		// Absolute layout
 		getContentPane().setLayout(null);
 
@@ -120,8 +119,8 @@ public class ColorSelector extends JFrame implements KeyListener,
 		tabColorMixer.setLayout(null);
 
 		hueSlider = new JSlider();
-		hueSlider.setValue(100);
 		hueSlider.setPaintTicks(true);
+		hueSlider.setValue(179);
 		hueSlider.setOrientation(SwingConstants.VERTICAL);
 		hueSlider.setMinimum(0);
 		hueSlider.setMaximum(255);
@@ -143,9 +142,6 @@ public class ColorSelector extends JFrame implements KeyListener,
 		hueSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				mixerApplet.hue = (int) (359 * (hueSlider.getValue() / 255.0f));
-				// System.out
-				// .println(mixerApplet.hue + "," + mixerApplet.saturation
-				// + "," + mixerApplet.brightness);
 				setColorValue(mixerApplet.getSelectedColorRGB());
 				selectedColor.setBackground(mixerApplet.getSelectedColorRGB());
 			}
@@ -173,7 +169,7 @@ public class ColorSelector extends JFrame implements KeyListener,
 		tabColorMixer.add(panelHue);
 		populateStandardColors();
 		JPanel standardColorpanel = new JPanel();
-		standardColorpanel.setBounds(10, 282, 309, 57);
+		standardColorpanel.setBounds(10, 286, 309, 57);
 
 		// Add a 2x8 palette containg standard colors
 		// Each of them has their mouse event handlers for selction/deselection
@@ -221,10 +217,14 @@ public class ColorSelector extends JFrame implements KeyListener,
 			standardColorpanel.add(standardColorPalette);
 			standardColorPallete.add(standardColorPalette);
 		}
-		
+
 		// Select the first panel by default
-		standardColorPallete.get(0).setBorder(line); 
+		standardColorPallete.get(0).setBorder(line);
 		tabColorMixer.add(standardColorpanel);
+
+		JLabel lblStandardColors = new JLabel("Standard Colors");
+		lblStandardColors.setBounds(10, 271, 77, 14);
+		tabColorMixer.add(lblStandardColors);
 
 		// The Color Picker tab
 		tabColorPicker = new JPanel();
@@ -295,7 +295,8 @@ public class ColorSelector extends JFrame implements KeyListener,
 		// Add the main color panel containing the color slots
 		// Each color slot is a JPanel
 		// A panel(color slot) is selected if it has a line border
-		// A deselected panel has a 'bev' border(Beveled border as defined in bev)
+		// A deselected panel has a 'bev' border(Beveled border as defined in
+		// bev)
 		for (int i = 0; i < pRow * pCol; i++) {
 			final JPanel currentPalettePanel = new JPanel();
 			currentPalettePanel
@@ -328,8 +329,6 @@ public class ColorSelector extends JFrame implements KeyListener,
 									Color.WHITE)) {
 								selectedColor.setBackground(currentPalettePanel
 										.getBackground());
-								// mixerApplet.setColor(temp.getBackground().get,
-								// y)
 								hueSlider.setValue(getHue(currentPalettePanel
 										.getBackground()));
 								setColorValue(currentPalettePanel
@@ -373,7 +372,7 @@ public class ColorSelector extends JFrame implements KeyListener,
 				saveCurrentPalettePath();
 			}
 		});
-		
+
 		// Pressing spacebar cause button clicks also. So focusable is false
 		btnSavePalette.setFocusable(false);
 		btnSavePalette.setBounds(10, 637, 57, 23);
@@ -591,14 +590,37 @@ public class ColorSelector extends JFrame implements KeyListener,
 		getContentPane().add(separator_1);
 
 		loadPaletteData(loadPreviousPalette());
-		setColorValue(Color.WHITE);
-		txtH.setText(hueSlider.getValue() + "");
+
+		// Also, without a initial call to updateMouse() clicking on standard
+		// panels fails to switch color on the mixerApplet
+		mixerApplet.updateMouse();
+
+		// Initially select the first standard color
+		// HSB values have been set manually. Couldn't make
+		// mixerApplet.setColor() work here for some reason
+		mixerApplet.hue = 253;
+		mixerApplet.saturation = 44;
+		mixerApplet.brightness = 231;
+
+		// <---IMPORTANT--->
+		// hueSlider.setValue(getHue(Color color)) is the way used
+		// to select a color into the selectedColor panel
+		// (Need to wrap it in a function)
+		hueSlider.setValue(getHue(standardColors.get(0)));
+
+		// Inside hueSlider's stateChanged(), setColorValue() has been used.
+		// Adding hueSlider.setValue() inside setColorValue would trigger
+		// hueSlider's stateChanged(), which would br calling setColorValue()
+		// again, thus creating an infinite loop of funciton calls.
+
 	}
 
-	// Add the standard colors to the colorList
+	/**
+	 * Add the standard colors to the colorList
+	 */
 	private void populateStandardColors() {
 
-		standardColors.add(new Color(0x880015));
+		standardColors.add(new Color(0xC8BFE7));
 		standardColors.add(new Color(0xED1C24));
 		standardColors.add(new Color(0xFF7F27));
 		standardColors.add(new Color(0xFFF200));
@@ -614,7 +636,7 @@ public class ColorSelector extends JFrame implements KeyListener,
 		standardColors.add(new Color(0xB5E61D));
 		standardColors.add(new Color(0x99D9EA));
 		standardColors.add(new Color(0x7092BE));
-		standardColors.add(new Color(0xC8BFE7));
+		standardColors.add(new Color(0x880015));
 	}
 
 	// Get hue value of a color in the range of 0-255
@@ -638,7 +660,9 @@ public class ColorSelector extends JFrame implements KeyListener,
 		clipboard.setContents(text, null);
 	}
 
-	// Save the colors(their int values) in a binary file
+	/**
+	 * Save the colors(as int values) in a binary file
+	 */
 	private void savePaletteData() {
 		String data = "";
 		for (int i = 0; i < palletePanels.size(); i++) {
@@ -678,15 +702,15 @@ public class ColorSelector extends JFrame implements KeyListener,
 			System.out.println("Palette Saved.");
 			currentFile = dataFile.getAbsolutePath();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
 
-	// Saves the path of the current .palette file in a settings file so that it
-	// is loaded next
-	// time automatically when the app is restarted.
+	/**
+	 * Saves the path of the current .palette file in a settings file so that it
+	 * is loaded next time automatically when the app is restarted.
+	 */
 	private boolean saveCurrentPalettePath() {
 		if (currentFile == null || currentFile == "")
 			return false;
@@ -712,13 +736,14 @@ public class ColorSelector extends JFrame implements KeyListener,
 			dataFile.renameTo(new File("ColorSelectorPlusSettings"));
 			return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return false;
 	}
 
-	// Loads the previous loaded .palette file
+	/**
+	 * Loads the previous loaded .palette file
+	 */
 	private String loadPreviousPalette() {
 		File dataFile = new File("ColorSelectorPlusSettings");
 		if (!dataFile.exists()) {
@@ -754,14 +779,13 @@ public class ColorSelector extends JFrame implements KeyListener,
 			}
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
 	}
 
-	/* 
-	 * Gets the path of the .palette file intended to be loaded 
+	/**
+	 * Gets the path of the .palette file intended to be loaded
 	 */
 	private String getLoadingPath() {
 		FileDialog fd = new FileDialog(new Frame(), "Load Palette...",
@@ -778,8 +802,10 @@ public class ColorSelector extends JFrame implements KeyListener,
 		return (fd.getDirectory() + File.separator + fileName);
 	}
 
-	/* 
-	 * Loads palette data from the path fileName	 
+	/**
+	 * Loads palette data from the path fileName
+	 * The settings file is presently generated in the Processing root folder
+	 * TODO: Change location to data folder of the this tool
 	 */
 	private void loadPaletteData(String fileName) {
 
@@ -789,9 +815,8 @@ public class ColorSelector extends JFrame implements KeyListener,
 		// System.out.println("Loading file: " + dataFile.getAbsolutePath());
 
 		try {
-			// Wrap the FileInputStream with a DataInputStream
-			FileInputStream file_input = new FileInputStream(dataFile);
-			DataInputStream dataIn = new DataInputStream(file_input);
+			FileInputStream fileIn = new FileInputStream(dataFile);
+			DataInputStream dataIn = new DataInputStream(fileIn);
 
 			for (int i = 0; i < palletePanels.size(); i++) {
 				Color c;
@@ -836,7 +861,9 @@ public class ColorSelector extends JFrame implements KeyListener,
 	// Flag to check if selected color is blank(white)
 	boolean isBlankPanelSelected = true;
 
-	// Returns the index of the currently selected panel
+	/**
+	 * Returns the index of the currently selected panel
+	 */
 	public int getSelectedPalletePanel() {
 		for (int i = 0; i < palletePanels.size(); i++) {
 			if (palletePanels.get(i).getBorder().equals(line)) {
@@ -892,16 +919,14 @@ public class ColorSelector extends JFrame implements KeyListener,
 		txtV.setText((int) (hsb[2] * 255) + "");
 		selectedColor.setBackground(pointColor);
 		mixerApplet.setColor((int) (hsb[1] * 255), 255 - (int) (hsb[2] * 255));
-
 	}
 
-	/* 
+	/**
 	 * Panel displaying the hue range
 	 */
 	private class HuePanel extends JPanel {
 
 		public void paintComponent(Graphics g) {
-			// super.paint(g);
 			int h = 0;
 			for (int i = this.getHeight(); i >= 0; i--) {
 				g.setColor(new Color(Color.HSBtoRGB(
@@ -918,6 +943,7 @@ public class ColorSelector extends JFrame implements KeyListener,
 	}
 
 	public void windowLostFocus(WindowEvent e) {
-		lblMsg.setText("<html>Click on the Color Selector Plus<br> window to start grabbing a Color</html>");
+		// For multiline label, had to resort to using html tags!
+		lblMsg.setText("<html>Click on the Color Selector Plus<br>window to start grabbing a Color</html>");
 	}
 }

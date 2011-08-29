@@ -56,6 +56,8 @@ public class ColorSelector2 extends JFrame implements KeyListener,
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -70,6 +72,7 @@ public class ColorSelector2 extends JFrame implements KeyListener,
 		// System.exit(0);
 	}
 
+	
 	/**
 	 * Create the frame. Add all components to it. I've been using the Eclipse
 	 * SWT Designer plugin to place components, so haven't used too many layout
@@ -78,7 +81,7 @@ public class ColorSelector2 extends JFrame implements KeyListener,
 	public ColorSelector2() {
 		// Must change the next line while building tool! Had 12 instances
 		// running once with dispose_on_close!
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Base.setIcon(this);
 		setResizable(false);
 		setTitle("Color Selector Plus");

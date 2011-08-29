@@ -16,7 +16,7 @@ class MixerApplet extends PApplet {
 	static final int HIGH = 256;
 	boolean firstRun = true;
 	int lastX, lastY;
-	int hue = 200, brightness = 0, saturation = 0;
+	int hue = 200, brightness = 110, saturation = 0;
 	ColorSelector parent;
 
 	public void setup() {
@@ -75,13 +75,23 @@ class MixerApplet extends PApplet {
 		updateMouse();
 	}
 
-	public void setColor(int x, int y) {
-		if (x >= 0 && x <= 255 && y >= 0 && y <= 255) {
-			lastX = x;
-			lastY = y;
+	public void setColor(int s, int b) {
+		if (s >= 0 && s <= 255 && b >= 0 && b <= 255) {
+			lastX = s;
+			lastY = b;
 			brightness = height - lastY - 1;
 		} else
-			println("Illegal arguments to setColor():" + x + "," + y);
+			println("Illegal arguments to setColor():" + s + "," + b);
+	}
+
+	public void setColor(int h, int s, int b) {
+		if (h >= 0 && h <= 359 && s >= 0 && s <= 255 && b >= 0 && b <= 255) {
+			hue = h;
+			lastX = s;
+			lastY = b;
+			brightness = height - lastY - 1;
+		} else
+			println("Illegal arguments to setColor():" + s + "," + b);
 	}
 
 	public void updateMouse() {
