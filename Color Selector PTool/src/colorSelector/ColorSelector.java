@@ -589,7 +589,7 @@ public class ColorSelector extends JFrame implements KeyListener,
 		separator_1.setBounds(40, 390, 283, 2);
 		getContentPane().add(separator_1);
 
-		loadPaletteData(loadPreviousPalette());
+		loadPaletteData(getPreviouslyLoadedPalette());
 
 		// Also, without a initial call to updateMouse() clicking on standard
 		// panels fails to switch color on the mixerApplet
@@ -742,9 +742,9 @@ public class ColorSelector extends JFrame implements KeyListener,
 	}
 
 	/**
-	 * Loads the previous loaded .palette file
+	 * Gets the path of the previous loaded .palette file
 	 */
-	private String loadPreviousPalette() {
+	private String getPreviouslyLoadedPalette() {
 		File dataFile = new File("ColorSelectorPlusSettings");
 		if (!dataFile.exists()) {
 			// System.out.println("settings file doesn't exist.");
