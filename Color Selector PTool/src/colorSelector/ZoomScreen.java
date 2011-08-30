@@ -101,7 +101,7 @@ class ZoomScreen extends Applet implements Runnable, KeyListener {
 			pointColor = new Color(screen.getRGB(imgWidth / 2 + 1,
 					imgHeight / 2));
 			if (parent.tabColorPicker.isVisible()
-					&& parent.isBlankPanelSelected) {
+					&& parent.isBlankPanelSelected && parent.panelShowPalette.minimized == false) {
 				parent.selectedColor.setBackground(pointColor);
 				parent.setColorValue(pointColor);
 			}

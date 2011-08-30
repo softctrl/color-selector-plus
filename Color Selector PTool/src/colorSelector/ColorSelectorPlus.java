@@ -35,7 +35,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 	private JPanel panelZoomView;
 	private JSlider zoomSlider;
 	JPanel tabColorMixer;
-
+	final ButtonPanel panelShowPalette;
 	// Normal panel border
 	final BevelBorder bev = new BevelBorder(BevelBorder.LOWERED, null, null,
 			null, null);
@@ -93,7 +93,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		addKeyListener(this);
 		addWindowFocusListener(this);
 
-		setBounds(300, 50, 338, 695);
+		setBounds(300, 50, 338, 695); // 555,695
 		// Absolute layout
 		getContentPane().setLayout(null);
 
@@ -289,7 +289,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		getContentPane().add(lblPalette);
 
 		JSeparator separator = new JSeparator();
-		separator.setBounds(50, 517, 273, 2);
+		separator.setBounds(50, 517, 240, 2);
 		getContentPane().add(separator);
 
 		// Add the main color panel containing the color slots
@@ -607,11 +607,30 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		// to select a color into the selectedColor panel
 		// (Need to wrap it in a function)
 		hueSlider.setValue(getHue(standardColors.get(0)));
-
 		// Inside hueSlider's stateChanged(), setColorValue() has been used.
 		// Adding hueSlider.setValue() inside setColorValue would trigger
 		// hueSlider's stateChanged(), which would br calling setColorValue()
 		// again, thus creating an infinite loop of funciton calls.
+		
+		panelShowPalette = new ButtonPanel();
+		panelShowPalette.setBounds(300, 509, 22, 14);
+		panelShowPalette.setBorder(new LineBorder(Color.GRAY, 1));
+		panelShowPalette.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				if (getHeight() == 555) {
+					setBounds(getLocation().x, getLocation().y, getWidth(), 695);
+				} else if (getHeight() == 695) {
+					setBounds(getLocation().x, getLocation().y, getWidth(), 555);
+				}
+				panelShowPalette.minimized = !panelShowPalette.minimized;
+
+			}
+		});
+
+		getContentPane().add(panelShowPalette);
+
+		
 
 	}
 
@@ -803,9 +822,9 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 	}
 
 	/**
-	 * Loads palette data from the path fileName
-	 * The settings file is presently generated in the Processing root folder
-	 * TODO: Change location to data folder of the this tool
+	 * Loads palette data from the path fileName The settings file is presently
+	 * generated in the Processing root folder TODO: Change location to data
+	 * folder of the this tool
 	 */
 	private void loadPaletteData(String fileName) {
 
@@ -934,6 +953,49 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 				g.drawLine(0, h, this.getWidth(), h);
 				h++;
 			}
+		}
+
+	}
+
+	/**
+	 * Panel displaying the hue range
+	 */
+	class ButtonPanel extends JPanel {
+		boolean minimized = false;
+
+		public void paintComponent(Graphics g) {
+			g.setColor(Color.BLACK);
+			Graphics2D g2d = (Graphics2D) g;
+			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+					RenderingHints.VALUE_ANTIALIAS_ON);
+
+			Dimension size = this.getSize();
+			if (minimized) {
+				Point p1 = new Point(size.width / 4, (4 * size.height) / 5);
+				Point p2 = new Point(size.width / 2, size.height / 5);
+				Point p3 = new Point((3 * size.width) / 4,
+						(4 * size.height) / 5);
+
+				int[] xs = { p1.x, p2.x, p3.x };
+				int[] ys = { p1.y, p2.y, p3.y };
+				Polygon triangle = new Polygon(xs, ys, xs.length);
+				g2d.fillPolygon(triangle);
+			}
+
+			else {
+				Point p1 = new Point(size.width / 4, size.height
+						- (4 * size.height) / 5);
+				Point p2 = new Point(size.width / 2, size.height - size.height
+						/ 5);
+				Point p3 = new Point((3 * size.width) / 4, size.height
+						- (4 * size.height) / 5);
+
+				int[] xs = { p1.x, p2.x, p3.x };
+				int[] ys = { p1.y, p2.y, p3.y };
+				Polygon triangle = new Polygon(xs, ys, xs.length);
+				g2d.fillPolygon(triangle);
+			}
+
 		}
 
 	}
