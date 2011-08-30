@@ -970,19 +970,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 					RenderingHints.VALUE_ANTIALIAS_ON);
 
 			Dimension size = this.getSize();
-			if (minimized) {
-				Point p1 = new Point(size.width / 4, (4 * size.height) / 5);
-				Point p2 = new Point(size.width / 2, size.height / 5);
-				Point p3 = new Point((3 * size.width) / 4,
-						(4 * size.height) / 5);
-
-				int[] xs = { p1.x, p2.x, p3.x };
-				int[] ys = { p1.y, p2.y, p3.y };
-				Polygon triangle = new Polygon(xs, ys, xs.length);
-				g2d.fillPolygon(triangle);
-			}
-
-			else {
+			if (minimized){
 				Point p1 = new Point(size.width / 4, size.height
 						- (4 * size.height) / 5);
 				Point p2 = new Point(size.width / 2, size.height - size.height
@@ -995,6 +983,19 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 				Polygon triangle = new Polygon(xs, ys, xs.length);
 				g2d.fillPolygon(triangle);
 			}
+			else
+			 {
+				Point p1 = new Point(size.width / 4, (4 * size.height) / 5);
+				Point p2 = new Point(size.width / 2, size.height / 5);
+				Point p3 = new Point((3 * size.width) / 4,
+						(4 * size.height) / 5);
+
+				int[] xs = { p1.x, p2.x, p3.x };
+				int[] ys = { p1.y, p2.y, p3.y };
+				Polygon triangle = new Polygon(xs, ys, xs.length);
+				g2d.fillPolygon(triangle);
+			}
+
 
 		}
 
