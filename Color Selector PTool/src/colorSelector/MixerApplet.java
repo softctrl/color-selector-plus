@@ -58,12 +58,14 @@ class MixerApplet extends PApplet {
 		strokeCap(PROJECT);
 		if (firstRun) {
 			lastX = lastY = 20;
+			firstRun = false;
 		}
 		line(lastX - 10, lastY, lastX - 5, lastY);
 		line(lastX + 10, lastY, lastX + 5, lastY);
 		line(lastX, lastY - 10, lastX, lastY - 5);
 		line(lastX, lastY + 10, lastX, lastY + 5);
 		noFill();
+		//rect(lastX, lastY, 10, 10);
 		strokeWeight(1);
 	}
 
@@ -97,12 +99,10 @@ class MixerApplet extends PApplet {
 	public void updateMouse() {
 		if ((mouseX >= 0) && (mouseX < 256) && (mouseY >= 0) && (mouseY < 256)) {
 			brightness = height - mouseY - 1;
-			saturation = mouseX;
-
-			firstRun = false;
+			saturation = mouseX;			
 			lastX = mouseX;
 			lastY = mouseY;
-
+			println("X,Y: " + lastX +","+lastY);
 			parent.setColorValue(getSelectedColorRGB());
 			parent.txtH.setText(parent.hueSlider.getValue() + "");
 		}

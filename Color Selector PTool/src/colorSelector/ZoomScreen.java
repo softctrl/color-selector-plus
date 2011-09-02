@@ -80,6 +80,8 @@ class ZoomScreen extends Applet implements Runnable, KeyListener {
 						mouseP = mouseC;
 					}
 			}
+
+			// Very important to add Thread.sleep() or else eats up resources
 			try {
 				Thread.sleep(30);
 			} catch (InterruptedException e) {
