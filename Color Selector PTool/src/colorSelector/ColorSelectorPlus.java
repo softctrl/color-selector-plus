@@ -72,10 +72,15 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 	 * SWT Designer plugin to place components, so haven't used too many layout
 	 * managers.
 	 */
+	final boolean debugMode = false;
 	public ColorSelectorPlus() {
 		// Must change the next line while building tool! Had 12 instances
 		// running once with dispose_on_close!
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		if(debugMode)
+			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		else
+			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
 		Base.setIcon(this);
 		setResizable(false);
 		setTitle("Color Selector Plus");

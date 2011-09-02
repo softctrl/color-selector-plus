@@ -68,16 +68,24 @@ class ZoomScreen extends Applet implements Runnable, KeyListener {
 	private int zm;
 	private Point mouseC, mouseP;
 
-	// Create a separate thread and continuously listen for 
+	// Create a separate thread and continuously listen for
 	// mouse movement and repaint applet
 	public void run() {
 		while (true) {
-			mouseC = MouseInfo.getPointerInfo().getLocation();
-			if (parent.tabColorPicker.isVisible())
-				if (!mouseC.equals(mouseP)) {
-					zoomPanel.repaint();
-					mouseP = mouseC;
-				}
+			if (parent.tabColorPicker.isVisible()) {
+				mouseC = MouseInfo.getPointerInfo().getLocation();
+				if (parent.tabColorPicker.isVisible())
+					if (!mouseC.equals(mouseP)) {
+						zoomPanel.repaint();
+						mouseP = mouseC;
+					}
+			}
+			try {
+				Thread.sleep(30);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -101,7 +109,8 @@ class ZoomScreen extends Applet implements Runnable, KeyListener {
 			pointColor = new Color(screen.getRGB(imgWidth / 2 + 1,
 					imgHeight / 2));
 			if (parent.tabColorPicker.isVisible()
-					&& parent.isBlankPanelSelected && parent.panelShowPalette.minimized == false) {
+					&& parent.isBlankPanelSelected
+					&& parent.panelShowPalette.minimized == false) {
 				parent.selectedColor.setBackground(pointColor);
 				parent.setColorValue(pointColor);
 			}
