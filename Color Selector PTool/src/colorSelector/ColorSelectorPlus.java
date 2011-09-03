@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
 import processing.app.*;
+
 import java.util.ArrayList;
 
 @SuppressWarnings("serial")
@@ -72,15 +73,17 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 	 * SWT Designer plugin to place components, so haven't used too many layout
 	 * managers.
 	 */
-	final boolean debugMode = false;
+	final boolean debugMode = !false;
+
 	public ColorSelectorPlus() {
 		// Must change the next line while building tool! Had 12 instances
 		// running once with dispose_on_close!
-		if(debugMode)
+		if (debugMode)
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		else
+		else {
 			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		
+		}
+
 		Base.setIcon(this);
 		setResizable(false);
 		setTitle("Color Selector Plus");
@@ -106,10 +109,38 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 
 		// Used to activate the selectedColorPanel for grabbing color on
 		// switching tabs.
+		final ColorSelectorPlus t = this;
+
 		tabbedPane.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				getSelectedPalletePanel();
+				// getSelectedPalletePanel();
+
+
+				if (tabColorPicker.isVisible() && zoomScreen == null) {
+					zoomScreen = new ZoomScreen();
+					zoomScreen.parent = t;
+					zoomScreen.init();
+					panelZoomView.add(zoomScreen);
+					final ChangeListener ss = new ChangeListener() {
+						public void stateChanged(ChangeEvent arg0) {
+							zoomScreen.zoomLevel = zoomSlider.getMaximum() + 5
+									- zoomSlider.getValue();
+						}
+					};
+					// zoomSlider.addChangeListener(ss);
+				} else {
+					if (zoomScreen != null)
+						zoomScreen.destroy();
+					// zoomSlider.removeChangeListener(ss);
+					// zoomSlider.remove(arg0)
+				}
+				System.out.println(tabColorPicker.isVisible() + ", zS: "
+						+ (zoomScreen == null));
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
 			}
 		});
 		tabbedPane.setBounds(0, 0, 334, 378);
@@ -146,7 +177,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		mixerApplet.hue = (int) (359 * (hueSlider.getValue() / 255.0f));
 		hueSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
-				mixerApplet.hue = (int) (359 * (hueSlider.getValue() / 255.0f));
+				mixerApplet.setHue((int) (359 * (hueSlider.getValue() / 255.0f)));
+				mixerApplet.redraw();
 				setColorValue(mixerApplet.getSelectedColorRGB());
 				selectedColor.setBackground(mixerApplet.getSelectedColorRGB());
 			}
@@ -228,11 +260,18 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		tabColorMixer.add(standardColorpanel);
 
 		JLabel lblStandardColors = new JLabel("Standard Colors");
-		lblStandardColors.setBounds(10, 271, 77, 14);
+		lblStandardColors.setBounds(10, 271, 97, 14);
 		tabColorMixer.add(lblStandardColors);
 
 		// The Color Picker tab
 		tabColorPicker = new JPanel();
+		tabColorPicker.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				System.out.println("Visible:"
+						+ tabColorPicker.getComponentCount());
+			}
+		});
 		tabColorPicker.setFocusCycleRoot(true);
 		tabColorPicker.setName("ColorPicker");
 		tabColorPicker.setLayout(null);
@@ -245,17 +284,13 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		tabColorPicker.add(panelZoomView);
 		panelZoomView.setLayout(new BorderLayout());
 
-		zoomScreen = new ZoomScreen();
-		zoomScreen.parent = this;
-		zoomScreen.init();
-		panelZoomView.add(zoomScreen);
-
 		zoomSlider = new JSlider();
 		zoomSlider.setValue(35);
 		zoomSlider.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
-				zoomScreen.zoomLevel = zoomSlider.getMaximum() + 5
-						- zoomSlider.getValue();
+				if (zoomScreen != null)
+					zoomScreen.zoomLevel = zoomSlider.getMaximum() + 5
+							- zoomSlider.getValue();
 			}
 		});
 		zoomSlider.setFocusable(false);
@@ -616,7 +651,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		// Adding hueSlider.setValue() inside setColorValue would trigger
 		// hueSlider's stateChanged(), which would br calling setColorValue()
 		// again, thus creating an infinite loop of funciton calls.
-		
+
 		panelShowPalette = new ButtonPanel();
 		panelShowPalette.setBounds(300, 509, 22, 14);
 		panelShowPalette.setBorder(new LineBorder(Color.GRAY, 1));
@@ -634,8 +669,6 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		});
 
 		getContentPane().add(panelShowPalette);
-
-		
 
 	}
 
@@ -945,6 +978,18 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		mixerApplet.setColor((int) (hsb[1] * 255), 255 - (int) (hsb[2] * 255));
 	}
 
+	public void setColorValueFromMixer(Color pointColor) {
+		txtcolorValue.setText("#"
+				+ Integer.toHexString(pointColor.getRGB()).substring(2)
+						.toUpperCase());
+		txtR.setText(pointColor.getRed() + "");
+		txtG.setText(pointColor.getGreen() + "");
+		txtB.setText(pointColor.getBlue() + "");
+		txtS.setText(mixerApplet.saturation + "");
+		txtV.setText(mixerApplet.brightness + "");
+		selectedColor.setBackground(pointColor);
+	}
+
 	/**
 	 * Panel displaying the hue range
 	 */
@@ -975,7 +1020,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 					RenderingHints.VALUE_ANTIALIAS_ON);
 
 			Dimension size = this.getSize();
-			if (minimized){
+			if (minimized) {
 				Point p1 = new Point(size.width / 4, size.height
 						- (4 * size.height) / 5);
 				Point p2 = new Point(size.width / 2, size.height - size.height
@@ -987,9 +1032,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 				int[] ys = { p1.y, p2.y, p3.y };
 				Polygon triangle = new Polygon(xs, ys, xs.length);
 				g2d.fillPolygon(triangle);
-			}
-			else
-			 {
+			} else {
 				Point p1 = new Point(size.width / 4, (4 * size.height) / 5);
 				Point p2 = new Point(size.width / 2, size.height / 5);
 				Point p3 = new Point((3 * size.width) / 4,
@@ -1000,7 +1043,6 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 				Polygon triangle = new Polygon(xs, ys, xs.length);
 				g2d.fillPolygon(triangle);
 			}
-
 
 		}
 

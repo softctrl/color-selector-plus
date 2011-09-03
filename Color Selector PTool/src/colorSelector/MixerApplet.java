@@ -25,7 +25,9 @@ class MixerApplet extends PApplet {
 		colorMode(HSB, 360, 256, 256);
 		noFill();
 		rectMode(CENTER);
+		noLoop();
 		loadPixels();
+		
 	}
 
 	public Color getSelectedColorRGB() {
@@ -38,12 +40,12 @@ class MixerApplet extends PApplet {
 	}
 
 	public void draw() {
-
+//		if(parent.tabColorMixer.isVisible()==false)
+//			return;
 		if ((width != WIDE) || (height < HIGH)) {
 			System.out.println("bad size " + width + " " + height);
 			return;
 		}
-
 		int index = 0;
 		for (int j = 0; j < 256; j++) {
 			for (int i = 0; i < 256; i++) {
@@ -56,10 +58,10 @@ class MixerApplet extends PApplet {
 		fill(0);
 		strokeWeight(2);
 		strokeCap(PROJECT);
-		if (firstRun) {
-			lastX = lastY = 20;
-			firstRun = false;
-		}
+//		if (firstRun) {
+//			lastX = lastY = 20;
+//			firstRun = false;
+//		}
 		line(lastX - 10, lastY, lastX - 5, lastY);
 		line(lastX + 10, lastY, lastX + 5, lastY);
 		line(lastX, lastY - 10, lastX, lastY - 5);
@@ -95,6 +97,11 @@ class MixerApplet extends PApplet {
 		} else
 			println("Illegal arguments to setColor():" + s + "," + b);
 	}
+	
+	public void setHue(int hue) {
+		this.hue = hue;
+		redraw();
+	}
 
 	public void updateMouse() {
 		if ((mouseX >= 0) && (mouseX < 256) && (mouseY >= 0) && (mouseY < 256)) {
@@ -102,9 +109,9 @@ class MixerApplet extends PApplet {
 			saturation = mouseX;			
 			lastX = mouseX;
 			lastY = mouseY;
-			println("X,Y: " + lastX +","+lastY);
-			parent.setColorValue(getSelectedColorRGB());
-			parent.txtH.setText(parent.hueSlider.getValue() + "");
+			parent.setColorValueFromMixer(getSelectedColorRGB());
+			//parent.txtH.setText(parent.hueSlider.getValue() + "");
+			redraw();
 		}
 	}
 }

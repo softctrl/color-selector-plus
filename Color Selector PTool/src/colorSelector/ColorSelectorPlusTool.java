@@ -41,7 +41,9 @@ public class ColorSelectorPlusTool implements Tool {
 	}
 
 	public void init(Editor theEditor) {
-		cs = new ColorSelectorPlus();
+		if (cs == null) {
+			cs = new ColorSelectorPlus();
+		}
 		cs.editor = theEditor;
 	}
 
