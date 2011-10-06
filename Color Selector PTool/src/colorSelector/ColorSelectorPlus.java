@@ -278,8 +278,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		standardColorpanel.setBounds(10, 286, 309, 57);
 		if (runningOnMac)
 			standardColorpanel.setBounds(7, 288, 309, 57);
-		// Add a 2x8 palette containg standard colors
-		// Each of them has their mouse event handlers for selction/deselection
+		// Add a 2x8 palette containing standard colors
+		// Each of them has their mouse event handlers for selection/deselection
 		// A panel is selected if it has a line border
 		// A deselected panel has a 'bev' border(Beveled border as defined in
 		// bev)
@@ -302,7 +302,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 							standardColorPalette.setBorder(line);
 
 							// When selecting a palette panel, only panels
-							// containg non white colors should set the value of
+							// containing non white colors should set the value of
 							// selectedColor panel
 
 							if (!standardColorPalette.getBackground().equals(
@@ -447,7 +447,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 							currentPalettePanel.setBorder(line);
 
 							// When selecting a palette panel, only panels
-							// containg non white colors should set the value of
+							// containing non white colors should set the value of
 							// selectedColor panel
 							// White colored panel are treated as empty panels
 

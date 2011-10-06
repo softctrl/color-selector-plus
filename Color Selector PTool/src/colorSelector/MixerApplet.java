@@ -3,8 +3,8 @@ package colorSelector;
 import processing.core.*;
 
 /* 
- * The Color Mixer applet
- * Code borowed from ColorSelector.java - part of the processing distribution
+ * The Color Mixer Applet
+ * Code borrowed from ColorSelector.java - part of the processing distribution
  * loadPixels() and updatePixels() are more smooth at updating the panel
  * that redrawing the paint area. 
  */
