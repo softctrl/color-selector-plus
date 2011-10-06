@@ -17,7 +17,6 @@ class ZoomScreen extends Applet implements Runnable, KeyListener {
 	private ZoomPanel zoomPanel;
 	private JPanel parentPanel;
 	ColorSelectorPlus parent;
-
 	public void init() {
 		mouseC = mouseP = MouseInfo.getPointerInfo().getLocation();
 		parentPanel = new JPanel();

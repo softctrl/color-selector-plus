@@ -13,22 +13,25 @@ import java.awt.event.*;
 import java.awt.datatransfer.*;
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.text.*;
 import javax.swing.border.*;
+
 import processing.app.*;
+import processing.core.PApplet;
 
 import java.util.ArrayList;
 
 @SuppressWarnings("serial")
 public class ColorSelectorPlus extends JFrame implements KeyListener,
-		WindowFocusListener {
+		WindowFocusListener, DocumentListener {
 	private ZoomScreen zoomScreen;
-	private JTextField txtcolorValue;
+	private JTextField txtHex;
 	private JTextField txtB;
 	private JTextField txtG;
 	private JTextField txtR;
 	JTextField txtH;
-	private JTextField txtS;
-	private JTextField txtV;
+	JTextField txtS;
+	JTextField txtV;
 	JPanel selectedColor;
 	JPanel tabColorPicker;
 	private JPanel panelColorPallete;
@@ -50,6 +53,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 	final JButton btnAddToPalette;
 	Editor editor;
 	String currentFile;
+	private final boolean runningOnMac;// = !false;
 
 	/**
 	 * Main method to launch it for testing
@@ -73,9 +77,10 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 	 * SWT Designer plugin to place components, so haven't used too many layout
 	 * managers.
 	 */
-	final boolean debugMode = !false;
+	final boolean debugMode = false;
 
 	public ColorSelectorPlus() {
+
 		// Must change the next line while building tool! Had 12 instances
 		// running once with dispose_on_close!
 		if (debugMode)
@@ -97,25 +102,33 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		} catch (Exception e) {
 			System.out.println("Unable to load System look and feel");
 		}
+		// OS X had some issues with component alignment.
+		// When running on OS X, the Bounds of some components have to be
+		// changed
+		String os = System.getProperty("os.name");
+		if (os.contains("Mac")) {
+			runningOnMac = true;
+		} else
+			runningOnMac = false;
 
 		addKeyListener(this);
 		addWindowFocusListener(this);
 
 		setBounds(300, 50, 338, 695); // 555,695
+
 		// Absolute layout
 		getContentPane().setLayout(null);
 
 		final JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 
-		// Used to activate the selectedColorPanel for grabbing color on
-		// switching tabs.
+		// The following MouseListener allocates/deallocates resources to the
+		// zoomScreen depending upon whether ColorPicker tab is visible or not
+		// This should help reduce resource usage a bit.
 		final ColorSelectorPlus t = this;
-
 		tabbedPane.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				// getSelectedPalletePanel();
-
 
 				if (tabColorPicker.isVisible() && zoomScreen == null) {
 					zoomScreen = new ZoomScreen();
@@ -128,22 +141,21 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 									- zoomSlider.getValue();
 						}
 					};
-					// zoomSlider.addChangeListener(ss);
+					zoomSlider.addChangeListener(ss);
 				} else {
-					if (zoomScreen != null)
-						zoomScreen.destroy();
-					// zoomSlider.removeChangeListener(ss);
-					// zoomSlider.remove(arg0)
-				}
-				System.out.println(tabColorPicker.isVisible() + ", zS: "
-						+ (zoomScreen == null));
-			}
 
-			@Override
-			public void mousePressed(MouseEvent arg0) {
+					if (zoomScreen != null) {
+						zoomScreen.destroy();
+					}
+
+				}
+				// System.out.println(tabColorPicker.isVisible() + ", zS: "
+				// + (zoomScreen != null));
 			}
 		});
 		tabbedPane.setBounds(0, 0, 334, 378);
+		if (runningOnMac)
+			tabbedPane.setBounds(0, 0, 340, 388);
 		getContentPane().add(tabbedPane);
 
 		// The Color Mixer tab
@@ -168,38 +180,95 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		mixerPanel.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null,
 				null, null));
 		mixerPanel.setBounds(59, 11, 260, 260);
+		if (runningOnMac)
+			mixerPanel.setBounds(54, 11, 260, 260);
 		tabColorMixer.add(mixerPanel);
 		mixerPanel.setLayout(new BorderLayout());
 		mixerApplet = new MixerApplet();
 		mixerApplet.parent = this;
 		mixerApplet.init();
 		mixerPanel.add(mixerApplet, BorderLayout.CENTER);
-		mixerApplet.hue = (int) (359 * (hueSlider.getValue() / 255.0f));
-		hueSlider.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-				mixerApplet.setHue((int) (359 * (hueSlider.getValue() / 255.0f)));
+		hueSlider.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				updateMouse();
+
+			}
+
+			public void updateMouse() {
+				hue = (int) (359 * (hueSlider.getValue() / 255.0f));
 				mixerApplet.redraw();
-				setColorValue(mixerApplet.getSelectedColorRGB());
-				selectedColor.setBackground(mixerApplet.getSelectedColorRGB());
+				txtH.setText(String.valueOf(hue));
+			}
+		});
+
+		hueSlider.addMouseMotionListener(new MouseMotionListener() {
+
+			@Override
+			public void mouseMoved(MouseEvent arg0) {
+
+			}
+
+			@Override
+			public void mouseDragged(MouseEvent arg0) {
+
+				updateMouse();
+
+			}
+
+			public void updateMouse() {
+				hue = (int) (359 * (hueSlider.getValue() / 255.0f));
+				mixerApplet.redraw();
+				txtH.setText(String.valueOf(hue));
 			}
 		});
 
 		HuePanel panelHue = new HuePanel();
 		panelHue.setBorder(new LineBorder(new Color(0, 0, 0)));
 		panelHue.setBounds(32, hueSlider.getY() + 1, 20, 256);
+		if (runningOnMac)
+			panelHue.setBounds(27, hueSlider.getY() + 1, 20, 256);
 		panelHue.setLayout(new BorderLayout());
 		panelHue.addMouseListener(new MouseAdapter() {
 			@Override
 			// Clicking on the hue panel selects the hue
 			public void mousePressed(MouseEvent e) {
-				hueSlider.setValue(hueSlider.getMaximum() - e.getY());
+
+				hue = (int) (359 * (hueSlider.getMaximum() - e.getY()) / 255f);
+				mixerApplet.redraw();
+				updateRGB();
 			}
 		});
 
 		panelHue.addMouseMotionListener(new MouseMotionAdapter() {
 			// Dragging does the same
 			public void mouseDragged(MouseEvent e) {
-				hueSlider.setValue(hueSlider.getMaximum() - e.getY());
+				if ((hueSlider.getMaximum() - e.getY()) >= 0
+						&& (hueSlider.getMaximum() - e.getY()) <= 255) {
+					hue = (int) (359 * (hueSlider.getMaximum() - e.getY()) / 255f);
+				}
+				mixerApplet.redraw();
+				updateRGB();
 			}
 		});
 
@@ -207,7 +276,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		populateStandardColors();
 		JPanel standardColorpanel = new JPanel();
 		standardColorpanel.setBounds(10, 286, 309, 57);
-
+		if (runningOnMac)
+			standardColorpanel.setBounds(7, 288, 309, 57);
 		// Add a 2x8 palette containg standard colors
 		// Each of them has their mouse event handlers for selction/deselection
 		// A panel is selected if it has a line border
@@ -244,6 +314,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 										.getBackground()));
 								setColorValue(standardColorPalette
 										.getBackground());
+								mixerApplet.redraw2();
 							}
 						}
 					}
@@ -262,6 +333,14 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		JLabel lblStandardColors = new JLabel("Standard Colors");
 		lblStandardColors.setBounds(10, 271, 97, 14);
 		tabColorMixer.add(lblStandardColors);
+		if (runningOnMac) {
+			lblStandardColors.setBounds(10, 271, 110, 14);
+			for (int i = 0; i < tabColorMixer.getComponentCount(); i++) {
+				Component c = tabColorMixer.getComponent(i);
+				c.setBounds(c.getX(), c.getY() - 10, c.getWidth(),
+						c.getHeight());
+			}
+		}
 
 		// The Color Picker tab
 		tabColorPicker = new JPanel();
@@ -301,6 +380,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		zoomSlider.setMaximum(75);
 		zoomSlider.setMajorTickSpacing(10);
 		zoomSlider.setBounds(44, 316, 113, 29);
+		if (runningOnMac)
+			zoomSlider.setBounds(44, 312, 120, 34);
 		tabColorPicker.add(zoomSlider);
 
 		JLabel label = new JLabel("Zoom");
@@ -308,6 +389,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		label.setFocusTraversalKeysEnabled(false);
 		label.setHorizontalAlignment(SwingConstants.CENTER);
 		label.setBounds(14, 322, 35, 14);
+		if (runningOnMac)
+			label.setBounds(10, 314, 45, 24);
 		tabColorPicker.add(label);
 
 		lblMsg = new JLabel(" Press Spacebar to grab a Color");
@@ -320,12 +403,16 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 
 		panelColorPallete = new JPanel();
 		panelColorPallete.setBounds(5, 527, 322, 99);
+		if (runningOnMac)
+			panelColorPallete.setBounds(8, 534, 322, 99);
 		getContentPane().add(panelColorPallete);
 		int pRow = 3, pCol = 8;
 		panelColorPallete.setLayout(new GridLayout(pRow, pCol, 7, 7));
 
 		JLabel lblPalette = new JLabel("Palette");
 		lblPalette.setBounds(10, 509, 46, 14);
+		if (runningOnMac)
+			lblPalette.setBounds(10, 513, 46, 14);
 		getContentPane().add(lblPalette);
 
 		JSeparator separator = new JSeparator();
@@ -373,6 +460,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 										.getBackground()));
 								setColorValue(currentPalettePanel
 										.getBackground());
+								mixerApplet.redraw2();
 							}
 						}
 					}
@@ -416,6 +504,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		// Pressing spacebar cause button clicks also. So focusable is false
 		btnSavePalette.setFocusable(false);
 		btnSavePalette.setBounds(10, 637, 57, 23);
+		if (runningOnMac)
+			btnSavePalette.setBounds(10, 642, 57, 23);
 		getContentPane().add(btnSavePalette);
 
 		JButton btnSaveAs = new JButton("Save As");
@@ -427,6 +517,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 			}
 		});
 		btnSaveAs.setBounds(77, 637, 71, 23);
+		if (runningOnMac)
+			btnSaveAs.setBounds(77, btnSavePalette.getY(), 75, 23);
 		getContentPane().add(btnSaveAs);
 
 		JButton btnLoadPalette = new JButton("Load");
@@ -438,6 +530,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		});
 		btnLoadPalette.setFocusable(false);
 		btnLoadPalette.setBounds(158, 637, 73, 23);
+		if (runningOnMac)
+			btnLoadPalette.setBounds(158, btnSavePalette.getY(), 73, 23);
 		getContentPane().add(btnLoadPalette);
 
 		// Clear all clears all color panels and clears the currentFile
@@ -457,6 +551,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 			}
 		});
 		btnClearAll.setBounds(241, 637, 81, 23);
+		if (runningOnMac)
+			btnClearAll.setBounds(241, btnSavePalette.getY(), 81, 23);
 		getContentPane().add(btnClearAll);
 
 		// The bigger color panel showing the presently selected color.
@@ -471,14 +567,12 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		selectedColor.setBackground(Color.WHITE);
 
 		// The text fields and labels
-		txtB = new JTextField();
+		txtB = new NumberField(4, false);// new JTextField();
 		txtB.setBackground(Color.WHITE);
-		txtB.setEditable(false);
 		txtB.setBounds(202, 402, 33, 20);
 		getContentPane().add(txtB);
 		txtB.setText("0");
 		txtB.setHorizontalAlignment(SwingConstants.RIGHT);
-		txtB.setColumns(3);
 
 		JLabel label_3 = new JLabel("Green");
 		label_3.setBounds(86, 404, 46, 14);
@@ -487,33 +581,28 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		label_3.setFocusable(false);
 		label_3.setHorizontalAlignment(SwingConstants.CENTER);
 
-		txtG = new JTextField();
+		txtG = new NumberField(4, false);
+		;
 		txtG.setBackground(Color.WHITE);
-		txtG.setEditable(false);
 		txtG.setBounds(130, 401, 33, 20);
 		getContentPane().add(txtG);
 		txtG.setText("0");
 		txtG.setHorizontalAlignment(SwingConstants.RIGHT);
-		txtG.setColumns(3);
 
-		txtR = new JTextField();
+		txtR = new NumberField(4, false);
 		txtR.setBackground(Color.WHITE);
-		txtR.setEditable(false);
 		txtR.setBounds(56, 402, 33, 20);
 		getContentPane().add(txtR);
 		txtR.setInheritsPopupMenu(true);
 		txtR.setText("0");
 		txtR.setHorizontalAlignment(SwingConstants.RIGHT);
-		txtR.setColumns(3);
 
-		txtH = new JTextField();
+		txtH = new NumberField(4, false);
 		txtH.setBackground(Color.WHITE);
-		txtH.setEditable(false);
 		txtH.setBounds(56, 431, 33, 20);
 		getContentPane().add(txtH);
 		txtH.setText("0");
 		txtH.setHorizontalAlignment(SwingConstants.RIGHT);
-		txtH.setColumns(3);
 
 		JLabel label_6 = new JLabel("Sat");
 		label_6.setBounds(86, 433, 46, 14);
@@ -522,14 +611,12 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		label_6.setFocusable(false);
 		label_6.setHorizontalAlignment(SwingConstants.CENTER);
 
-		txtS = new JTextField();
+		txtS = new NumberField(4, false);
 		txtS.setBackground(Color.WHITE);
-		txtS.setEditable(false);
 		txtS.setBounds(130, 430, 33, 20);
 		getContentPane().add(txtS);
 		txtS.setText("0");
 		txtS.setHorizontalAlignment(SwingConstants.RIGHT);
-		txtS.setColumns(3);
 
 		JLabel label_7 = new JLabel("Val");
 		label_7.setBounds(158, 434, 46, 14);
@@ -538,14 +625,13 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		label_7.setFocusable(false);
 		label_7.setHorizontalAlignment(SwingConstants.CENTER);
 
-		txtV = new JTextField();
+		txtV = new NumberField(4, false);
+		;
 		txtV.setBackground(Color.WHITE);
-		txtV.setEditable(false);
 		txtV.setBounds(202, 431, 33, 20);
 		getContentPane().add(txtV);
 		txtV.setText("0");
 		txtV.setHorizontalAlignment(SwingConstants.RIGHT);
-		txtV.setColumns(3);
 
 		JLabel label_8 = new JLabel("Blue");
 		label_8.setBounds(158, 405, 46, 14);
@@ -569,19 +655,17 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		label_4.setHorizontalAlignment(SwingConstants.CENTER);
 
 		JLabel label_2 = new JLabel("Hex");
-		label_2.setBounds(140, 459, 46, 14);
+		label_2.setBounds(140, 459, 46, 14); // x - 127 on mac
 		getContentPane().add(label_2);
 		label_2.setFocusTraversalKeysEnabled(false);
 		label_2.setFocusable(false);
 		label_2.setHorizontalAlignment(SwingConstants.CENTER);
 
-		txtcolorValue = new JTextField();
-		txtcolorValue.setBackground(Color.WHITE);
-		txtcolorValue.setEditable(false);
-		txtcolorValue.setBounds(180, 456, 55, 20);
-		getContentPane().add(txtcolorValue);
-		txtcolorValue.setFocusTraversalKeysEnabled(false);
-		txtcolorValue.setColumns(7);
+		txtHex = new NumberField(5, true);
+		txtHex.setBackground(Color.WHITE);
+		txtHex.setBounds(180, 456, 55, 20);
+		getContentPane().add(txtHex);
+		txtHex.setFocusTraversalKeysEnabled(false);
 
 		// Copy to clipboard and add to palette buttons
 		JButton btnCopyToClipboard = new JButton("Copy hex to Clipboard");
@@ -617,10 +701,22 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		});
 		btnCopyToClipboard.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				copyToClipboard(txtcolorValue.getText());
+				copyToClipboard(txtHex.getText());
 			}
 		});
-
+		if (runningOnMac) {
+			label_2.setBounds(127, 459, 46, 14); // Hex field label
+			txtB.setBounds(198, 402, 40, 20);
+			txtG.setBounds(txtG.getX() - 4, 402, txtG.getWidth() + 7, 20);
+			txtR.setBounds(txtR.getX() - 4, 402, txtR.getWidth() + 7, 20);
+			txtH.setBounds(txtH.getX() - 4, 431, txtH.getWidth() + 7, 20);
+			txtS.setBounds(txtS.getX() - 4, 430, txtS.getWidth() + 7, 20);
+			txtV.setBounds(txtV.getX() - 4, 431, txtV.getWidth() + 7, 20);
+			txtHex.setBounds(txtHex.getX() - 14, 456, txtHex.getWidth() + 17,
+					20);
+			btnCopyToClipboard.setBounds(23, 483, 166, 23);
+			btnAddToPalette.setBounds(190, 483, 121, 23);
+		}
 		JLabel lblColor = new JLabel("Color");
 		lblColor.setBounds(10, 382, 46, 14);
 		getContentPane().add(lblColor);
@@ -631,30 +727,18 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 
 		loadPaletteData(getPreviouslyLoadedPalette());
 
-		// Also, without a initial call to updateMouse() clicking on standard
-		// panels fails to switch color on the mixerApplet
-		mixerApplet.updateMouse();
-
 		// Initially select the first standard color
-		// HSB values have been set manually. Couldn't make
-		// mixerApplet.setColor() work here for some reason
-		mixerApplet.hue = 253;
-		mixerApplet.saturation = 44;
-		mixerApplet.brightness = 231;
+		// HSB values have been set manually.
+		hue = 253;
+		saturation = 44;
+		brightness = 231;
 
-		// <---IMPORTANT--->
-		// hueSlider.setValue(getHue(Color color)) is the way used
-		// to select a color into the selectedColor panel
-		// (Need to wrap it in a function)
-		hueSlider.setValue(getHue(standardColors.get(0)));
-		// Inside hueSlider's stateChanged(), setColorValue() has been used.
-		// Adding hueSlider.setValue() inside setColorValue would trigger
-		// hueSlider's stateChanged(), which would br calling setColorValue()
-		// again, thus creating an infinite loop of funciton calls.
+		// hueSlider.setValue(getHue(standardColors.get(0)));
 
 		panelShowPalette = new ButtonPanel();
 		panelShowPalette.setBounds(300, 509, 22, 14);
 		panelShowPalette.setBorder(new LineBorder(Color.GRAY, 1));
+		panelColorPallete.setFocusable(false);
 		panelShowPalette.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -667,9 +751,19 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 
 			}
 		});
-
+		txtH.getDocument().addDocumentListener(this);
+		txtG.getDocument().addDocumentListener(this);
+		txtB.getDocument().addDocumentListener(this);
+		txtS.getDocument().addDocumentListener(this);
+		txtR.getDocument().addDocumentListener(this);
+		txtV.getDocument().addDocumentListener(this);
+		txtHex.getDocument().addDocumentListener(this);
 		getContentPane().add(panelShowPalette);
-
+		txtH.setText(String.valueOf(hue));
+		updateRGB();
+		updateHSB();
+		
+		System.out.println("Color Selector Plus v2.0.0\n  (c) Manindra Moharana");
 	}
 
 	/**
@@ -779,7 +873,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 
 			dataOut.writeChars(currentFile);
 			fileOut.close();
-			// System.out.println("Saved palette path: " + currentFile);
+			System.out.println("Saved palette path: " + currentFile);
 			File oldFile = new File("settings");
 			if (oldFile.exists()) {
 				if (oldFile.delete()) {
@@ -790,7 +884,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 				}
 			}
 
-			dataFile.renameTo(new File("ColorSelectorPlusSettings"));
+			dataFile.renameTo(new File("CPS"));
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -802,7 +896,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 	 * Gets the path of the previous loaded .palette file
 	 */
 	private String getPreviouslyLoadedPalette() {
-		File dataFile = new File("ColorSelectorPlusSettings");
+		File dataFile = new File("CPS");
 		if (!dataFile.exists()) {
 			// System.out.println("settings file doesn't exist.");
 			currentFile = "";
@@ -829,15 +923,17 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 			}
 
 			if (filePath == "") {
+				System.out.println("No path");
 				return filePath;
 			} else {
-				// System.out.println("Last loaded file: " + filePath);
+				System.out.println("Last loaded file: " + filePath);
 				return filePath;
 			}
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		System.out.println("Returning null");
 		return null;
 	}
 
@@ -865,7 +961,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 	 * folder of the this tool
 	 */
 	private void loadPaletteData(String fileName) {
-
+		// System.out.println("Loading file: " + fileName);
 		if (fileName == null || fileName == "")
 			return;
 		File dataFile = new File(fileName);
@@ -882,7 +978,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 					cInt = dataIn.readInt();
 					c = new Color(cInt);
 				} catch (IOException e) {
-					System.out.println("IO Exception : " + e);
+					//System.out.println("IO Exception : " + e);
 					c = Color.WHITE;
 				} catch (Exception e) {
 					System.out
@@ -962,32 +1058,24 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 
 	}
 
+	/**
+	 * Setting the color (updating text fields)
+	 */
 	public void setColorValue(Color pointColor) {
-		txtcolorValue.setText("#"
+		txtHex.setText("#"
 				+ Integer.toHexString(pointColor.getRGB()).substring(2)
 						.toUpperCase());
-		txtR.setText(pointColor.getRed() + "");
-		txtG.setText(pointColor.getGreen() + "");
-		txtB.setText(pointColor.getBlue() + "");
+
 		float hsb[] = Color.RGBtoHSB(pointColor.getRed(),
 				pointColor.getGreen(), pointColor.getBlue(), null);
-		txtH.setText((int) (hsb[0] * 360) + "");
-		txtS.setText((int) (hsb[1] * 255) + "");
-		txtV.setText((int) (hsb[2] * 255) + "");
+		hue = (int) (hsb[0] * 359);
+		saturation = (int) (hsb[1] * 255);
+		brightness = (int) (hsb[2] * 255);
+		updateRGB();
+		updateHSB();
 		selectedColor.setBackground(pointColor);
-		mixerApplet.setColor((int) (hsb[1] * 255), 255 - (int) (hsb[2] * 255));
-	}
-
-	public void setColorValueFromMixer(Color pointColor) {
-		txtcolorValue.setText("#"
-				+ Integer.toHexString(pointColor.getRGB()).substring(2)
-						.toUpperCase());
-		txtR.setText(pointColor.getRed() + "");
-		txtG.setText(pointColor.getGreen() + "");
-		txtB.setText(pointColor.getBlue() + "");
-		txtS.setText(mixerApplet.saturation + "");
-		txtV.setText(mixerApplet.brightness + "");
-		selectedColor.setBackground(pointColor);
+		// System.out.println("SetColVal" + red + "," + green + "," + blue + ","
+		// + hue + "," + saturation + "," + brightness);
 	}
 
 	/**
@@ -1055,5 +1143,209 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 	public void windowLostFocus(WindowEvent e) {
 		// For multiline label, had to resort to using html tags!
 		lblMsg.setText("<html>Click on the Color Selector Plus<br>window to start grabbing a Color</html>");
+	}
+
+	public void changedUpdate(DocumentEvent e) {
+
+	}
+
+	public void removeUpdate(DocumentEvent e) {
+
+	}
+
+	boolean updating;
+
+	int hue, saturation, brightness, red, green, blue;
+
+	/**
+	 * A vital function, all updating of text fields and redrawing of the
+	 * mixerApplet happens from here. Almost all code below this has been
+	 * borrowed from Processing's original color selector tool. Making the text
+	 * fields editable was tough even with the code available.
+	 */
+	public void insertUpdate(DocumentEvent e) {
+		if (updating)
+			return; // don't update forever recursively
+		updating = true;
+
+		Document doc = e.getDocument();
+		if (doc == txtH.getDocument()) {
+			hue = bounded(hue, txtH, 359);
+			updateRGB();
+		} else if (doc == txtS.getDocument()) {
+			saturation = bounded(saturation, txtS, 255);
+			updateRGB();
+		} else if (doc == txtV.getDocument()) {
+			brightness = bounded(brightness, txtV, 255);
+			updateRGB();
+		} else if (doc == txtR.getDocument()) {
+			red = bounded(red, txtR, 255);
+			updateHSB();
+		} else if (doc == txtG.getDocument()) {
+			green = bounded(green, txtG, 255);
+			updateHSB();
+		} else if (doc == txtB.getDocument()) {
+			blue = bounded(blue, txtB, 255);
+			updateHSB();
+		} else if (doc == txtHex.getDocument()) {
+			String str = txtHex.getText();
+			if (str.startsWith("#")) {
+				str = str.substring(1);
+			}
+			while (str.length() < 6) {
+				str += "0";
+			}
+			if (str.length() > 6) {
+				str = str.substring(0, 6);
+			}
+			updateRGB2(Integer.parseInt(str, 16));
+			updateHSB();
+		}
+		mixerApplet.redraw2();
+		updateHueSlider();
+		selectedColor.setBackground(new Color(red, green, blue));
+		updating = false;
+	}
+
+	public void updateHueSlider() {
+		hueSlider.setValue((int) (hue / 359.0f * 255));
+	}
+
+	public void updateRGB() {
+		int rgb = Color.HSBtoRGB((float) hue / 359f, (float) saturation / 255f,
+				(float) brightness / 255f);
+		red = (rgb >> 16) & 0xff;
+		green = (rgb >> 8) & 0xff;
+		blue = rgb & 0xff;
+		txtR.setText(String.valueOf(red));
+		txtG.setText(String.valueOf(green));
+		txtB.setText(String.valueOf(blue));
+		txtHex.setText("#" + PApplet.hex(red, 2) + PApplet.hex(green, 2)
+				+ PApplet.hex(blue, 2));
+	}
+
+	protected void updateRGB2(int rgb) {
+		red = (rgb >> 16) & 0xff;
+		green = (rgb >> 8) & 0xff;
+		blue = rgb & 0xff;
+		txtR.setText(String.valueOf(red));
+		txtG.setText(String.valueOf(green));
+		txtB.setText(String.valueOf(blue));
+	}
+
+	public void updateHSB() {
+		float hsb[] = new float[3];
+		Color.RGBtoHSB(red, green, blue, hsb);
+		hue = (int) (hsb[0] * 359.0f);
+		saturation = (int) (hsb[1] * 255.0f);
+		brightness = (int) (hsb[2] * 255.0f);
+		txtH.setText(String.valueOf(hue));
+		txtS.setText(String.valueOf(saturation));
+		txtV.setText(String.valueOf(brightness));
+	}
+
+	/**
+	 * Get the bounded value for a specific range. If the value is outside the
+	 * max, you can't edit right away, so just act as if it's already been
+	 * bounded and return the bounded value, then fire an event to set it to the
+	 * value that was just returned.
+	 */
+	protected int bounded(int current, final JTextField field, final int max) {
+		String text = field.getText();
+		if (text.length() == 0) {
+			return 0;
+		}
+		try {
+			int value = Integer.parseInt(text);
+			if (value > max) {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						field.setText(String.valueOf(max));
+					}
+				});
+				return max;
+			}
+			return value;
+
+		} catch (NumberFormatException e) {
+			return current; // should not be reachable
+		}
+	}
+
+	/**
+	 * Extension of JTextField that only allows numbers
+	 */
+	class NumberField extends JTextField {
+
+		public boolean allowHex;
+
+		public NumberField(int cols, boolean allowHex) {
+			super(cols);
+			this.allowHex = allowHex;
+		}
+
+		protected Document createDefaultModel() {
+			return new NumberDocument(this);
+		}
+
+		public Dimension getPreferredSize() {
+			if (!allowHex) {
+				return new Dimension(45, super.getPreferredSize().height);
+			}
+			return super.getPreferredSize();
+		}
+
+		public Dimension getMinimumSize() {
+			return getPreferredSize();
+		}
+
+		public Dimension getMaximumSize() {
+			return getPreferredSize();
+		}
+	}
+
+	/**
+	 * Document model to go with JTextField that only allows numbers.
+	 */
+	class NumberDocument extends PlainDocument {
+
+		NumberField parentField;
+
+		public NumberDocument(NumberField parentField) {
+			this.parentField = parentField;
+			// System.out.println("setting parent to " + parentSelector);
+		}
+
+		public void insertString(int offs, String str, AttributeSet a)
+				throws BadLocationException {
+
+			if (str == null)
+				return;
+
+			char chars[] = str.toCharArray();
+			int charCount = 0;
+			// remove any non-digit chars
+			for (int i = 0; i < chars.length; i++) {
+				boolean ok = Character.isDigit(chars[i]);
+				if (parentField.allowHex) {
+					if ((chars[i] >= 'A') && (chars[i] <= 'F'))
+						ok = true;
+					if ((chars[i] >= 'a') && (chars[i] <= 'f'))
+						ok = true;
+					if ((offs == 0) && (i == 0) && (chars[i] == '#'))
+						ok = true;
+				}
+				if (ok) {
+					if (charCount != i) { // shift if necessary
+						chars[charCount] = chars[i];
+					}
+					charCount++;
+				}
+			}
+			super.insertString(offs, new String(chars, 0, charCount), a);
+			// can't call any sort of methods on the enclosing class here
+			// seems to have something to do with how Document objects are set
+			// up
+		}
 	}
 }

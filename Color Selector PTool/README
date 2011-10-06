@@ -15,7 +15,7 @@ The Color Selector Plus window is divided into three areas:
 
 	The Color Mixer tab has a similar view as Processing's default color selector tool, 
 	it provides a hue slider and a mixing area to choose a color. It also has a palette
-	of some standard colors.
+	of some standard colors. RGB, HSB, and Hex values can be manually entered too.
 
 	The Color Picker tab has a magnifier. The black square in the center is the current pixel 
 	pointed by the mouse. Press spacebar while the Color Selector Plus window is in focus to grab a
