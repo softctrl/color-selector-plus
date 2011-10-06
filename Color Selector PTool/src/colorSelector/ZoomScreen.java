@@ -96,7 +96,7 @@ class ZoomScreen extends Applet implements Runnable, KeyListener {
 	// The panel that draws the zoomed image
 	// Image wasn't directly drawn onto the applet due to weird refresh
 	// rates
-	// Refreshing was insonsistent and showed lag
+	// Refreshing was inconsistent and showed lag
 	private class ZoomPanel extends JPanel {
 
 		@Override

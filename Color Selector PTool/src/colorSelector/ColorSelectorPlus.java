@@ -149,8 +149,44 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 					}
 
 				}
-				// System.out.println(tabColorPicker.isVisible() + ", zS: "
-				// + (zoomScreen != null));
+				
+				//Disable the text fields when using the color picker tab.
+				if (tabColorPicker.isVisible()) {
+
+					txtH.setEditable(false);
+					txtS.setEditable(false);
+					txtV.setEditable(false);
+					txtR.setEditable(false);
+					txtG.setEditable(false);
+					txtB.setEditable(false);
+					txtHex.setEditable(false);
+					
+					txtH.setFocusable(false);
+					txtS.setFocusable(false);
+					txtV.setFocusable(false);
+					txtR.setFocusable(false);
+					txtG.setFocusable(false);
+					txtB.setFocusable(false);
+					txtHex.setFocusable(false);
+
+
+				} else {
+					txtH.setFocusable(!false);
+					txtS.setFocusable(!false);
+					txtV.setFocusable(!false);
+					txtR.setFocusable(!false);
+					txtG.setFocusable(!false);
+					txtB.setFocusable(!false);
+					txtHex.setFocusable(!false);
+
+					txtH.setEditable(!false);
+					txtS.setEditable(!false);
+					txtV.setEditable(!false);
+					txtR.setEditable(!false);
+					txtG.setEditable(!false);
+					txtB.setEditable(!false);
+					txtHex.setEditable(!false);
+				}
 			}
 		});
 		tabbedPane.setBounds(0, 0, 334, 378);
@@ -302,7 +338,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 							standardColorPalette.setBorder(line);
 
 							// When selecting a palette panel, only panels
-							// containing non white colors should set the value of
+							// containing non white colors should set the value
+							// of
 							// selectedColor panel
 
 							if (!standardColorPalette.getBackground().equals(
@@ -447,7 +484,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 							currentPalettePanel.setBorder(line);
 
 							// When selecting a palette panel, only panels
-							// containing non white colors should set the value of
+							// containing non white colors should set the value
+							// of
 							// selectedColor panel
 							// White colored panel are treated as empty panels
 
@@ -762,8 +800,9 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		txtH.setText(String.valueOf(hue));
 		updateRGB();
 		updateHSB();
-		
-		System.out.println("Color Selector Plus v2.0.0\n  (c) Manindra Moharana");
+
+		System.out
+				.println("Color Selector Plus v2.0.0\n  (c) Manindra Moharana");
 	}
 
 	/**
@@ -978,7 +1017,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 					cInt = dataIn.readInt();
 					c = new Color(cInt);
 				} catch (IOException e) {
-					//System.out.println("IO Exception : " + e);
+					// System.out.println("IO Exception : " + e);
 					c = Color.WHITE;
 				} catch (Exception e) {
 					System.out
