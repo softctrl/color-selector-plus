@@ -149,8 +149,10 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 					}
 
 				}
-				
-				//Disable the text fields when using the color picker tab.
+				// System.out.println("zoom: " + tabColorPicker.isVisible()
+				// + ", mixer: " + tabColorMixer.isVisible());
+
+				// Disable the text fields when using the color picker tab.
 				if (tabColorPicker.isVisible()) {
 
 					txtH.setEditable(false);
@@ -160,7 +162,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 					txtG.setEditable(false);
 					txtB.setEditable(false);
 					txtHex.setEditable(false);
-					
+
 					txtH.setFocusable(false);
 					txtS.setFocusable(false);
 					txtV.setFocusable(false);
@@ -168,7 +170,6 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 					txtG.setFocusable(false);
 					txtB.setFocusable(false);
 					txtHex.setFocusable(false);
-
 
 				} else {
 					txtH.setFocusable(!false);
@@ -762,8 +763,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		JSeparator separator_1 = new JSeparator();
 		separator_1.setBounds(40, 390, 283, 2);
 		getContentPane().add(separator_1);
-
-		loadPaletteData(getPreviouslyLoadedPalette());
+		if (!debugMode)
+			loadPaletteData(getPreviouslyLoadedPalette());
 
 		// Initially select the first standard color
 		// HSB values have been set manually.
@@ -902,9 +903,24 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 	 * is loaded next time automatically when the app is restarted.
 	 */
 	private boolean saveCurrentPalettePath() {
+
 		if (currentFile == null || currentFile == "")
 			return false;
-		File dataFile = new File("settings.temp");
+		boolean b = false;
+		try {
+			editor.getSketch().prepareDataFolder();
+			b = true;// editor.getSketch().hasDataFolder();
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			System.out.println("Exception in saving current palette path.");
+			return false;
+		}
+
+		if (b == false)
+			return false;
+		File dataFile = new File(editor.getSketch().getDataFolder()
+				.getAbsolutePath()
+				+ File.separator + "settings");
 		try {
 			dataFile.createNewFile();
 			FileOutputStream fileOut = new FileOutputStream(dataFile);
@@ -912,18 +928,21 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 
 			dataOut.writeChars(currentFile);
 			fileOut.close();
-			System.out.println("Saved palette path: " + currentFile);
-			File oldFile = new File("settings");
+			// System.out.println("Saved palette path: " + currentFile);
+			File oldFile = new File(editor.getSketch().getDataFolder()
+					.getAbsolutePath()
+					+ File.separator + "CSP.dat");
 			if (oldFile.exists()) {
-				if (oldFile.delete()) {
-					// System.out.println("Old settings deleted.");
-
-				} else {
-					// System.out.println("Couldn't update settings.");
-				}
+				// System.out.println("Old CSP.dat exists");
+				oldFile.delete();
+				// System.out.println("Old CSP.dat deleted.");
 			}
 
-			dataFile.renameTo(new File("CPS"));
+			dataFile.renameTo(new File(editor.getSketch().getDataFolder()
+					.getAbsolutePath()
+					+ File.separator + "CSP.dat"));
+			// System.out.println("Saved current path in "
+			// + dataFile.getAbsolutePath());
 			return true;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -934,10 +953,33 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 	/**
 	 * Gets the path of the previous loaded .palette file
 	 */
+	/*
+	 * TODO: For some weird bug, I can't get it to work when CSP starts first,
+	 * for a sketch. Once a palette has been loaded from a .palette file, then
+	 * it works properly. editor.getSketch().prepareDataFolder() doesn't work
+	 * when called initially! :S
+	 */
 	private String getPreviouslyLoadedPalette() {
-		File dataFile = new File("CPS");
+		boolean b = false;
+		File dataFile = null;
+		try {
+			dataFile = new File(editor.getSketch().getDataFolder()
+					.getAbsolutePath()
+					+ File.separator + "CSP.dat");
+		} catch (Exception e) {
+			// System.out.println(e.toString());
+			// System.out.println("Exception in getPreviouslyLoadedPalette");
+			currentFile = "";
+			b = false;
+		}
+		if (b == false) {
+			// System.out.println("Data folder doesn't exist");
+			currentFile = "";
+			return "";
+		}
+		// File dataFile = new File("CSP.dat");
 		if (!dataFile.exists()) {
-			// System.out.println("settings file doesn't exist.");
+			// System.out.println(" CSP.dat file doesn't exist in data folder.");
 			currentFile = "";
 			return "";
 		}
@@ -962,17 +1004,17 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 			}
 
 			if (filePath == "") {
-				System.out.println("No path");
+				// System.out.println("No path");
 				return filePath;
 			} else {
-				System.out.println("Last loaded file: " + filePath);
+				// System.out.println("Last loaded file: " + filePath);
 				return filePath;
 			}
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		System.out.println("Returning null");
+		// System.out.println("Returning null");
 		return null;
 	}
 
@@ -1045,6 +1087,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 
 			dataIn.close();
 			currentFile = dataFile.getAbsolutePath();
+			System.out.println("Loaded : " + dataFile.getName());
+			setTitle(dataFile.getName() + " - " + editor.getSketch().getName());
 		} catch (IOException e) {
 			System.out.println("IO Exception: " + e);
 		}
