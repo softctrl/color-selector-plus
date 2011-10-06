@@ -891,6 +891,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 			}
 			fileOut.close();
 			System.out.println("Palette Saved.");
+			setTitle(dataFile.getName() + " - " + editor.getSketch().getName());
 			currentFile = dataFile.getAbsolutePath();
 		} catch (IOException e) {
 			e.printStackTrace();
