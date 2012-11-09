@@ -43,6 +43,9 @@
 	<property name="project.dist.version" location="distribution/${project.name}-${project.version}"/>
 	<property name="install.source" location="resources/install_instructions.txt"/>
 	<property name="install.destination" location="${project.dist.version}/INSTALL.txt"/>
+	<!-- Added later -->
+	<property name="processing.core" location="C:/Users/QuarkNinja.XQ/processing-read-only/core/library/" />
+	<property name="processing.classes" location="C:/Users/QuarkNinja.XQ/processing-read-only/build/windows/work/lib" />
 	
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
 		<classpath>
@@ -55,6 +58,12 @@
 		<fileset dir="${classpath.local.location}" includes="${classpath.local.include}" />
 		<fileset dir="${classpath.libraries.location}" includes="**/*.jar" />
 		<fileset dir="${project.lib}" includes="**/*.jar" />
+		<fileset dir="${processing.classes}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${processing.core}">
+			<include name="*.jar" />
+		</fileset>
 	</path>		
 
 	
@@ -346,6 +355,13 @@ ${line}
 	  	  			flags="g" />
 	</target>
 	
+	<target name="launch.processing" description="Launch Processing" depends="tool.run">
+		<exec executable="C:/Users/QuarkNinja.XQ/processing-read-only/build/windows/work/processing.exe" spawn="true" />
+
+		<echo>
+			Launching Processing from: E:/Program Files/processing-1.5/processing.exe
+		</echo>
+	</target>
 	
 	
 	<target name="clean" depends="tool.run">
@@ -366,3 +382,4 @@ ${line}
 	
 </project>
 
+	

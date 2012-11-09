@@ -16,7 +16,8 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.border.*;
 
-import processing.app.*;
+import processing.app.Editor;
+import processing.app.Toolkit;
 import processing.core.PApplet;
 
 import java.util.ArrayList;
@@ -63,8 +64,10 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 			public void run() {
 				try {
 					ColorSelectorPlus frame = new ColorSelectorPlus();
+					frame.setTitle("Select Color..");
 					frame.setLocation(400, 40);
 					frame.setVisible(true);
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -83,25 +86,19 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 
 		// Must change the next line while building tool! Had 12 instances
 		// running once with dispose_on_close!
-		if (debugMode)
-			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		else {
-			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		}
+		// if (editor == null)
+		// setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// else {
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		// }
 
-		Base.setIcon(this);
+		Toolkit.setIcon(this);
 		setResizable(false);
 		setTitle("Color Selector Plus");
 		addWindowFocusListener(this);
 		setAlwaysOnTop(true);
 		setLocation(300, 50);
 
-		// To get the System look and feel.
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			System.out.println("Unable to load System look and feel");
-		}
 		// OS X had some issues with component alignment.
 		// When running on OS X, the Bounds of some components have to be
 		// changed
@@ -803,7 +800,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		updateHSB();
 
 		System.out
-				.println("Color Selector Plus v2.0.0\n  (c) Manindra Moharana");
+				.println("Color Selector Plus v2.0.1\n  (c) Manindra Moharana (www.mkmoharana.com)");
 	}
 
 	/**
@@ -846,7 +843,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 	}
 
 	void copyToClipboard(String s) {
-		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+		Clipboard clipboard = Toolkit.getSystemClipboard();
 		Transferable text = new StringSelection(s);
 		clipboard.setContents(text, null);
 	}

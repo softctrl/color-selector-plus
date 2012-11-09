@@ -26,7 +26,7 @@ class ZoomScreen extends Applet implements Runnable, KeyListener {
 		parentPanel.add(zoomPanel, BorderLayout.CENTER);
 		add(parentPanel);
 		try {
-			robot = new Robot(gs[0]);
+			robot = new Robot(MouseInfo.getPointerInfo().getDevice());
 		} catch (AWTException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
