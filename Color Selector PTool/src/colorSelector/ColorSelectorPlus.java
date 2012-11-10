@@ -98,7 +98,12 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		addWindowFocusListener(this);
 		setAlwaysOnTop(true);
 		setLocation(300, 50);
-
+		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			System.out.println("Unable to load System look and feel");
+		}
 		// OS X had some issues with component alignment.
 		// When running on OS X, the Bounds of some components have to be
 		// changed
