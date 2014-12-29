@@ -47,7 +47,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 
 	// Selected panel border
 	final LineBorder line = new LineBorder(new Color(0, 0, 0), 2);
-	private final MixerApplet mixerApplet;
+	private final MixerApplet2 mixerApplet;
 	final JSlider hueSlider;
 	private final JPanel mixerPanel;
 	ArrayList<Color> standardColors = new ArrayList<Color>();
@@ -223,9 +223,9 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 			mixerPanel.setBounds(54, 11, 260, 260);
 		tabColorMixer.add(mixerPanel);
 		mixerPanel.setLayout(new BorderLayout());
-		mixerApplet = new MixerApplet();
+		mixerApplet = new MixerApplet2(this);
 		mixerApplet.parent = this;
-		mixerApplet.init();
+		//mixerApplet.init();
 		mixerPanel.add(mixerApplet, BorderLayout.CENTER);
 		hueSlider.addMouseListener(new MouseListener() {
 
