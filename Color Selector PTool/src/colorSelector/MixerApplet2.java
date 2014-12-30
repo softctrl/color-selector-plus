@@ -63,8 +63,8 @@ public class MixerApplet2 extends JPanel {
     for (int i = 0; i < getWidth(); i++) {
       for (int j = 0; j < getHeight(); j++) {
         g.setColor(Color.getHSBColor(parent.hue / 359.0f,
-                                     (getWidth() - i) / 255.0f,
-                                     (getHeight() - j) / 255.0f));
+                                     (getWidth() - i) / (getWidth() * 1.0f),
+                                     (getHeight() - j) / (getHeight() * 1.0f)));
         g.drawLine(getWidth() - i, j, getWidth() - i, j);
       }
     }
