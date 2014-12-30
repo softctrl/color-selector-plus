@@ -11,11 +11,13 @@ import java.io.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.datatransfer.*;
+
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 import javax.swing.border.*;
 
+import processing.app.Base;
 import processing.app.Editor;
 import processing.app.Toolkit;
 import processing.core.PApplet;
@@ -84,13 +86,11 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 
 	public ColorSelectorPlus() {
 
-		// Must change the next line while building tool! Had 12 instances
-		// running once with dispose_on_close!
-		// if (editor == null)
-		// setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		// else {
-		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		// }
+//    if (editor == null)
+//      setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//    else {
+    setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+//    }
 
 		Toolkit.setIcon(this);
 		setResizable(false);
@@ -107,8 +107,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		// OS X had some issues with component alignment.
 		// When running on OS X, the Bounds of some components have to be
 		// changed
-		String os = System.getProperty("os.name");
-		if (os.contains("Mac")) {
+		if (Base.isMacOS() || Base.isLinux()) {
 			runningOnMac = true;
 		} else
 			runningOnMac = false;
@@ -155,41 +154,22 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 				// + ", mixer: " + tabColorMixer.isVisible());
 
 				// Disable the text fields when using the color picker tab.
-				if (tabColorPicker.isVisible()) {
+				
+				txtH.setEditable(!tabColorPicker.isVisible());
+        txtS.setEditable(!tabColorPicker.isVisible());
+        txtV.setEditable(!tabColorPicker.isVisible());
+        txtR.setEditable(!tabColorPicker.isVisible());
+        txtG.setEditable(!tabColorPicker.isVisible());
+        txtB.setEditable(!tabColorPicker.isVisible());
+        txtHex.setEditable(!tabColorPicker.isVisible());
 
-					txtH.setEditable(false);
-					txtS.setEditable(false);
-					txtV.setEditable(false);
-					txtR.setEditable(false);
-					txtG.setEditable(false);
-					txtB.setEditable(false);
-					txtHex.setEditable(false);
-
-					txtH.setFocusable(false);
-					txtS.setFocusable(false);
-					txtV.setFocusable(false);
-					txtR.setFocusable(false);
-					txtG.setFocusable(false);
-					txtB.setFocusable(false);
-					txtHex.setFocusable(false);
-
-				} else {
-					txtH.setFocusable(!false);
-					txtS.setFocusable(!false);
-					txtV.setFocusable(!false);
-					txtR.setFocusable(!false);
-					txtG.setFocusable(!false);
-					txtB.setFocusable(!false);
-					txtHex.setFocusable(!false);
-
-					txtH.setEditable(!false);
-					txtS.setEditable(!false);
-					txtV.setEditable(!false);
-					txtR.setEditable(!false);
-					txtG.setEditable(!false);
-					txtB.setEditable(!false);
-					txtHex.setEditable(!false);
-				}
+        txtH.setFocusable(!tabColorPicker.isVisible());
+        txtS.setFocusable(!tabColorPicker.isVisible());
+        txtV.setFocusable(!tabColorPicker.isVisible());
+        txtR.setFocusable(!tabColorPicker.isVisible());
+        txtG.setFocusable(!tabColorPicker.isVisible());
+        txtB.setFocusable(!tabColorPicker.isVisible());
+        txtHex.setFocusable(!tabColorPicker.isVisible());
 			}
 		});
 		tabbedPane.setBounds(0, 0, 334, 378);
@@ -805,7 +785,7 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 		updateHSB();
 
 		System.out
-				.println("Color Selector Plus v2.0.1\n  (c) Manindra Moharana (www.mkmoharana.com)");
+				.println("Color Selector Plus v3.0.0\n  (c) Manindra Moharana (www.mkmoharana.com)");
 	}
 
 	/**
@@ -1232,11 +1212,11 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 	}
 
 	public void changedUpdate(DocumentEvent e) {
-
+//	  insertUpdate(e);
 	}
 
 	public void removeUpdate(DocumentEvent e) {
-
+	  insertUpdate(e);
 	}
 
 	boolean updating;
@@ -1407,6 +1387,8 @@ public class ColorSelectorPlus extends JFrame implements KeyListener,
 
 			if (str == null)
 				return;
+			
+			if(parentField.allowHex && getLength() >= 7) return;
 
 			char chars[] = str.toCharArray();
 			int charCount = 0;
