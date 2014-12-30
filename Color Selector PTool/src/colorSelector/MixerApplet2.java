@@ -12,6 +12,14 @@ import java.awt.event.MouseMotionListener;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+
+/**
+ * Similar functionality as MixerApplet. With Processing 3.04, PApplet
+ * no longer extends Applet, so had to swap the original MixerApplet out with
+ * MixerApplet2 that extends JPanel. 
+ * @author Manindra Moharana
+ *
+ */
 public class MixerApplet2 extends JPanel{
   
   static final int WIDE = 256;
@@ -51,7 +59,7 @@ public class MixerApplet2 extends JPanel{
     super.paintComponent(g); 
     for(int i = 0; i < getWidth(); i++){
       for (int j = 0; j < getHeight(); j++) {
-        g.setColor(Color.getHSBColor(parent.hue/360.0f, (getWidth()-i)/256.0f, (getHeight()-j)/256.0f));
+        g.setColor(Color.getHSBColor(parent.hue/360.0f, (getWidth()-i)/255.0f, (getHeight()-j)/255.0f));
         g.drawLine(getWidth()-i, j, getWidth()-i, j);
       }
     }
@@ -77,9 +85,9 @@ public class MixerApplet2 extends JPanel{
   }
   
   public void redraw2() {
-    lastX = parent.saturation;
-    lastY = 255-parent.brightness;
-    //redraw();
+    lastX = (int) (parent.saturation/255.0f * getWidth());
+    lastY = (int) ((255-parent.brightness)/255.0f * getHeight());
+    redraw();
   }
   
   public void updateMouse(MouseEvent e) {
